@@ -28,6 +28,11 @@ public class GameManager : MonoBehaviour
     {
         gameMan = this;
 
+        for (int i = 0; i < 10; i++)
+        {
+            new SecretGoal();
+        }
+
         //GameRoomID = GenerateGameRoomName();
         GameRoomName = "BUTT";
         StartCoroutine(cnm.CreateGameRoom(GameRoomName));
