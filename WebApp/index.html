@@ -30,6 +30,13 @@
 				opacity: 1;
 			}
 		}
+		@keyframes shrink-heading{
+			from{
+				font-size: 29pt;
+			} to {
+				font-size: 18pt;
+			}
+		}
 		*, body{
 			overflow: hidden;
 		}
@@ -39,7 +46,12 @@
 		}
 
 		.screen{
-			padding: 5px;
+			margin-top: 0;
+			margin-bottom: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 5px;
+			padding-right: 5px;
 			display: none;
 		}
 		.hide-screen{
@@ -54,24 +66,34 @@
 		h1{
 			text-align: center;
 			color: #384b6a;
-			font-size: 27pt;
+			font-size: 29pt;
 			font-family: "Tahoma",  sans-serif;
 			letter-spacing: 11px;
 			font-weight: 100;
 			text-shadow: 3px 2px rgba(0,0,0 ,0.5);
 			margin-top: 0;
 			margin-bottom: 0;
+			padding-bottom: 0;
 			
 		}
 		#heading-container{
 			background-image: url("./sayagata-400px/sayagata-400px.png");
-			padding-top: 10px;
-			padding-bottom: 20px;
-
+			padding-top: 8px;
+			padding-bottom: 8px;
+			margin-top:0;
+			margin-bottom: 0;
+		}
+		.compressed-heading{
+			font-size: 18pt;
+			animation: shrink-heading 1s;
 		}
 		h2{
 			color: #fff;
 			padding-left: 15px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			margin-bottom: 0;
+			margin-top: 0;
 			font-family: "Tahoma", sans-serif;
 			font-size: 18pt;
 			min-height: 24pt;
@@ -167,6 +189,10 @@
 				background: #fff;
 			}
 		}
+		#logout-btn{
+			margin-top: 20px;
+			margin-left: 10px;
+		}
 		.hvr-fade:hover,
 		.hvr-fade:active{
 			background: #fff;
@@ -183,6 +209,7 @@
 		<h1 id="main-heading" class="animated fadeInLeft"> Election Game</h1>
 	</div>
 
+
 	<!-- Login screen -->
 	<div class="screen" id="login">
 		<div class="pure-g form-container">
@@ -191,7 +218,7 @@
 				<fieldset>
 					<legend>Login to Game</legend>
 
-					<input id="room_id" placeholder="Enter four letter room ID"/>
+					<input id="room-id" placeholder="Enter four letter room ID"/>
 					<!--<label for="username">Username</label>-->
 					<input id="username" placeholder="Enter your player name"/>
 
@@ -208,33 +235,109 @@
 
 	<!-- game screen -->
 	<div class="screen" id="game-1">
-	<hr/>
-	<h2 id="question"></h2>
-	<hr/>
-	<div class="options pure-g">
+		<h2 id="question"></h2>
+		<div class="options pure-g">
 
-	    <div class="option" id="opt_1"></div>
-	    <div class="option" id="opt_2"></div>
-	</div>
-	<h2 class>Your Goals</h2>
-	<hr/>
-	<div class="secret-goals pure-menu custom-restricted-width">
-		<ul class="pure-menu-list pure-g">
-			<li class="goal pure-u-1 pure-menu-item hvr-fade" id="goal_1">Secret goal 1</li>
-			<li class="goal pure-u-1 pure-menu-item hvr-fade" id="goal_2">Secret goal 2</li>
-			<li class="goal pure-u-1 pure-menu-item hvr-fade" id="goal_3">Secret goal 3</li>
-		</ul>
+		    <div class="option" id="opt_1"></div>
+		    <div class="option" id="opt_2"></div>
+		</div>
+		
+		<div class="pure-g columns" id="heading-columns">
+			<div class="pure-u-1-2"><h2 class>Your Goals</h2></div>
+			<div class="pure-u-1-2"><h2 class>Latest Headlines</h2></div>
+		</div>
+		<div class="pure-g columns" id="content-columns">
+			<div class="pure-u-1-2" id="secret-goals">
+				<ul class="pure-menu-list pure-g" id="goals-list">
+					<!-- template
+					<li class="goal pure-u-1 pure-menu-item hvr-fade" id="goal_1">Secret goal 1</li> -->
+				</ul>
+			</div>
+			<div class="pure-u-1-2">
+				<ul class="pure-menu-list pure-g" id="headlines-list">
+					
+				</ul>
+			</div>
+		</div>
+		<button type="button" id="logout-btn" class="pure-button pure-button">Log  out</button>
+		<!--<div class="secret-goals pure-menu custom-restricted-width">-->
+		
 	</div>
 	<div id="debug"></div>
+
+	
 
 </body>
 <script src="./js/mustache.min.js"></script>
 <script type="text/javascript">
 
 	var screenIDs = ["login", "game-1"];
-	var gameState = "loginScreen";
+	var gameState = "";
 
 	var outAnim = "zoomOutUp";
+	var defaultCookieExpDays = 30;
+	
+	var headlines = [];
+	var goalCount = 0;
+	var MAX_HEADLINES = 5;
+	var MAX_GOALS = 2;
+	var USER_GOALS_C = 1 + Math.ceil(Math.random());
+	
+	var goals = ["Economy", "Public", "Defense", "Environment", "Industry"];
+
+	var GAME_SERVER = "http://beefyserver.serveminecraft.net/WebApp/gamelogic/";
+
+	var opt1 = document.getElementById("opt_1");
+	var opt2 = document.getElementById("opt_2");
+	var question = document.getElementById("question");
+	var heading = document.getElementById("main-heading");
+	var goalsList = document.getElementById("goals-list");
+	var headlinesList = document.getElementById("headlines-list");
+	var submitBtn = document.getElementById("login-btn");
+	var logOutBtn = document.getElementById("logout-btn");
+	
+	var gameInterval = 0;
+
+	function getCookie(cname) {
+	    var name = cname + "=";
+	    var ca = document.cookie.split(';');
+	    for(var i = 0; i <ca.length; i++) {
+	        var c = ca[i];
+	        while (c.charAt(0)==' ') {
+	            c = c.substring(1);
+	        }
+	        if (c.indexOf(name) == 0) {
+	            return c.substring(name.length,c.length);
+	        }
+    	}
+	    return "";
+	}
+
+	function setCookie(cname, cvalue){
+		var d = new Date();
+	    d.setTime(d.getTime() + (defaultCookieExpDays*24*60*60*1000));
+	    var expires = "expires="+ d.toUTCString();
+	    document.cookie = cname + "=" + cvalue + "; " + expires;
+	}
+
+	function ajaxGet(url, cfunc){
+		var xhttp;
+	    xhttp=new XMLHttpRequest();
+	    xhttp.onreadystatechange = function() {
+	        if (xhttp.readyState == 4 && xhttp.status == 200) {
+	            cfunc(xhttp.responseText);
+	        }
+	    };
+		xhttp.open("GET", url, true);
+		xhttp.send();
+	}
+	
+	function ajaxPost(url){
+		var xhttp;
+		xhttp = new XMLHttpRequest();
+		xhttp.open("GET", url);
+		xhttp.send();
+	}
 
 	function enableClass(el, className){
 		if(el != null && el.className.indexOf(className) == -1){
@@ -273,21 +376,115 @@
 		}
 	}
 
-	function headingModeLogin(){
-
+	function addGoal(goal){
+		// <li class="goal pure-u-1 pure-menu-item hvr-fade" id="goal_1">Secret goal 1</li> 
+		setTimeout(function(){
+			goalCount++;
+			goalsList.innerHTML += "<li class=\"goal pure-u-1 pure-menu-item animated fadeInLeft\" id=\"goal-" + goalCount + "\">" + goal + "</li>\n";
+			}, 500);
+	}
+	
+	function pickRandomGoal(){
+		return goals[Math.floor(Math.random() * (goals.length - 1))];
+	}
+	
+	function addRandomGoal(){
+	
+		// get current goals
+		var userGoals = [];
+		if(getCookie("userGoals")){
+			userGoals = getCookie("userGoals");
+		}
+		var newGoal = pickRandomGoal();
+		var goalCount = getCookie("userGoalCount");
+		
+		if(goalCount < 1 || goalCount == undefined){
+			goalCount = 0;
+		}
+		
+		// i too many goals, return
+		if(userGoals.length >= MAX_GOALS){
+			return;
+		}
+		/*
+		// check if goal already on list of user's goals
+		for(var i = 0; i < goals.length; i++){
+			// if new goal is already on list, tray again
+			if(userGoals[i] == newGoal){
+				addRandomGoal();
+			}
+		} */
+		goalCount++;
+		
+		userGoals.push(newGoal);
+		console.log("Adding goal: " + newGoal);
+		//setCookie("userGoalCount", goalCount);
+		
+		setCookie("userGoals", userGoals.join(','));
+	}
+	
+	function populateGoals(){
+	
+		var userGoalCount = getCookie("userGoalCount");
+		
+		
+		console.log(userGoalCount);
+		// if goals were not set, set them!
+		if(userGoalCount == undefined || userGoalCount == 0){
+			console.log("Not enough goals.");
+			for(var i = 0; i < USER_GOALS_C; i++){
+				console.log("Adding goal that was not set..");
+				addRandomGoal();
+			}
+		}
+		
+		
+		
+		var userGoals = getCookie("userGoals").split(',');
+		
+		if(userGoals.length < userGoalCount){
+		
+			console.log("There are fewer goals than we're told!");
+			for(var i = 0; i < userGoalCount - userGoals.length; i++){
+				addRandomGoal();
+			}
+		}
+		
+		for(var i = 0; i < userGoals.length; i++){
+			console.log("adding " + userGoals[i]);
+			addGoal(userGoals[i]);
+		}
+		
+	}
+	
+	function clearGoals(){
+		goalsList.innerHTML ="";
 	}
 
-	function headingModeInGame(){
+	function addHeadline(headline){
+		
+		console.log("Adding headline: " + headline);
+		// remove oldest headline
+		if(headlines.length >= MAX_HEADLINES){
+			headlines.shift();
+		}
+
+		headlines[headlines.length] = headline;
+
+		var headlinesHTML = "";
+		for(var i = 0; i < headlines.length; i++){
+			
+			headlinesHTML += "<li class=\"headline pure-u-1 pure-menu-item";
+			if(i == headlines.length - 1){
+				headlinesHTML += " animated fadeInLeft";
+			}
+
+			headlinesHTML += "\" id=\"headline-" + i + "\">" + headlines[i] + "</li>\n";
+		}
+
+		headlinesList.innerHTML = headlinesHTML;
 
 	}
-
-	var goal1 = document.getElementById("goal_1");
-
-	goal1.innerHTML ="World domination";
-
-	var opt1 = document.getElementById("opt_1");
-	var opt2 = document.getElementById("opt_2");
-	var question = document.getElementById("question");
 
 	function selectOption(optEl, altOptEl, outAnim){
 		var debug = document.getElementById("debug");
@@ -315,22 +512,23 @@
 
 		enableClass(question, "animated fadeOutLeft");
 	}
+	
+	function sendOption(number){
+	
+		ajaxPost(GAME_SERVER + "?write-data=" + number + "&write-player=" + getCookie("username") + "&write-room" + getCookie("roomID"));
+	}
 
 	var selectOpt1 = function(){
-		selectOption(opt1, opt2, "zoomOutUp");
-		setTimeout(function(){
-			newQuestion("Construct additional pylons", "insufficient vespene gas", "nuclear threat detected");	
-		}, 5000);
-		
+		sendOption(1);
+		selectOption(opt1, opt2, "zoomOutUp");		
 	}
 	var selectOpt2 = function(){
+		sendOption(2);
 		selectOption(opt2, opt1, "zoomOutUp");
 	}
 
 	opt1.onclick = selectOpt1;
 	opt2.onclick = selectOpt2;
-
-	console.log("Game start..");
 
 	function newQuestion(questionText, answer1, answer2){
 
@@ -358,7 +556,7 @@
 			disableClass(question, "animated");
 			disableClass(question, "fadeOutLeft");
 			enableClass(question, "animated fadeInLeft");
-			question.innerHTML = "Question: " + questionText;
+			question.innerHTML = questionText;
 		}, 1000);
 
 		// show options
@@ -373,35 +571,150 @@
 			}, 1000);
 		}, 2000);
 	}
+	
+	function newQuestionB(){
+		newQuestion("New policy, " + getCookie("username"), "First Option", "Second Option");
+	}
+
+	function getNewGameData(){
+		console.log("Waiting for new game data..");
+		var roomID = getCookie('roomID');
+		ajaxGet(GAME_SERVER + "rooms/GAMEDATA_" + roomID + "_COMMANDS", 				function(resp){	
+			//console.log("New data: " + resp);
+			// end of vote
+			if(resp.indexOf("endvote-all") > -1 &&
+				resp != getCookie("last-endvote-id")){
+				
+				setCookie("last-endvote-id", resp);
+				
+				// clear options.. not really needed as they clear themselves when a new option appears?
+				
+			}
+			
+			// new vote
+			if(resp.indexOf("voting-all") > -1 &&
+				resp != getCookie("last-startvote-id")){
+				setCookie("last-startvote-id", resp);
+				
+				// New question!
+				newQuestionB();
+			}
+			
+		});
+	}
 
 	function startGame(){
-		newQuestion("stop the hoverboats", "yarr", "nope");
+		enableClass(heading, "compressed-heading");
+		for(var i = 0; i < USER_GOALS_C; i++){
+			addRandomGoal();
+		}
+		setCookie("userGoalCount", USER_GOALS_C);
+		populateGoals();
+		gameInterval = setInterval(getNewGameData, 1000);
+		var username = getCookie("username");
+	}
+	
+	function resumeGame(){
+		enableClass(heading, "compressed-heading");
+		populateGoals();
+		gameInterval = setInterval(getNewGameData, 1000);
+		
 	}
 
-	if(gameState == "loginScreen"){
-		showScreen("login");	
-		//showScreen("game-1");
-		//startGame();
+	function loginAjax(userName, roomName, loginFunc){
+		if(userName != "" && roomName != ""){
+			var loginURL = GAME_SERVER + "?add-player=" + userName
+			+ "&to-room=" + roomName;
+			ajaxGet(loginURL, loginFunc);
+		}
 	}
 
-	var submitBtn = document.getElementById("login-btn");
+	function checkRoomLoginResponse(reponse){
+		console.log(reponse);
+		return true;
+	}
 
+	function setLoggedInCookie(userName, roomID){
+		setCookie("username", userName);
+		setCookie("roomID", roomID);
+		setCookie("gameState", "in-game");
+	}
+
+	// submit button
 	submitBtn.addEventListener("click", function(e){
+
+		// no reload!!
 		e.preventDefault();
-		if(gameState == "loginScreen"){
-			console.log("Hello");
-			hideScreen("login");
-			showScreen("game-1");
+		
+		// if at login screen (should be)
+		if(getCookie("gameState") == "loginScreen"){
+			// get username and room id
+			var userName = document.getElementById("username").value.toUpperCase();
+			var roomID = document.getElementById("room-id").value.toUpperCase().substring(0, 4);
+			
+			console.log("Logging in as " + userName + " to room " + roomID);
 
-			startGame();
+			// login via ajax call
+			loginAjax(userName, roomID, function(response){
+				if(checkRoomLoginResponse(response)){
+					console.log("Yay!");
+					hideScreen("login");
+					showScreen("game-1");
 
-
-			// TODO: move to a place where data is received from server
-
-		gameState = "inGame";
+					setLoggedInCookie(userName, roomID);
+					startGame();
+				} else {
+					console.log("Nay!");
+				}
+			})
+		} else {
+			console.log("submit button clicked but not in login game state..");
 		}
 	});
 	
-	//updateScreen();
+	function removePlayer(){
+		var url = GAME_SERVER + "?remove-player=" + getCookie("username") + "&from-room=" + getCookie("roomID");
+		
+		ajaxPost(url);
+		
+	}
+	
+	logOutBtn.addEventListener("click", function(e){
+		if(getCookie("gameState") == "in-game"){
+			
+			// clear? if they're not re-sent on login..			
+			clearGoals();
+			setCookie("gameState", "loginScreen");
+			hideScreen("game-1");
+			showScreen("login");
+		}
+	});
+	
+	// Game starts here... -------------------------------
+	
+	console.log("Game start..");
+	
+	var c;
+	try {
+		c = getCookie("gameState");
+		console.log("Read cookie: " + c);
+		
+		if(c.indexOf("loginScreen") == -1 && c.indexOf("in-game") == -1){
+			setCookie("gameState", "loginScreen");
+		}
+		console.log("Cookie: " + getCookie("gameState"));
+	} catch (err){
+		console.log("Cookie error: " + err);
+		setCookie("gameState", "loginScreen");
+	}
+	
+	if(getCookie("gameState") == "loginScreen"){
+		console.log("Showing login..");
+		showScreen("login");	
+	} else if(getCookie("gameState") == "in-game"){
+		console.log("Showing game screen");
+		showScreen("game-1");
+		startGame();
+	}
 </script>
 </html>
