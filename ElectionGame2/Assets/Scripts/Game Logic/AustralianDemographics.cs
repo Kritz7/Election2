@@ -105,4 +105,26 @@ public class AustralianDemographics
     private VotingArea ToVoting(PolicyArea p){
         return (VotingArea)Enum.Parse(typeof(VotingArea), p.ToString());
     }
+
+    /// <summary>
+    /// Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>A string that represents the current object.</returns>
+    /// <filterpriority>2</filterpriority>
+    public override string ToString() {
+        string s = "";
+        foreach (VotingArea v in Enum.GetValues(typeof(VotingArea))) {
+            s += v.ToString() + ": " + demos [v] + "\n";
+        }
+        return s;
+    }
+
+    /// <summary>
+    /// Gets the vote percentage.
+    /// </summary>
+    /// <returns>The vote percentage.</returns>
+    public double GetVotePercentage(long voteTally){
+        double percentage = (double)(voteTally) / (double)(POPULATION);
+        return percentage;
+    }
 }

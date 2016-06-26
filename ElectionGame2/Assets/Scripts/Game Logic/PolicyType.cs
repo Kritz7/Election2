@@ -1,11 +1,6 @@
 ﻿using System;
 
-
 /// <summary>
-/// Ignore. Internal
+/// The kind of policy. There are three- one where there is no budget change, no increaes in funding, and no decrease in funding. Basically for itnernal use only.
 /// </summary>
-public enum PolicyType
-{
-    NOBUDGET, NODECREASE, NOINCREASE
-}
-
+public enum PolicyType { NOBUDGET, NOINCREASE, NODECREASE }
