@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
 	void Start ()
     {
         gameMan = this;
-
         FundingModel fm = new FundingModel();
         AustralianDemographics ad = new AustralianDemographics();
         Debug.Log(ad.ToString());
