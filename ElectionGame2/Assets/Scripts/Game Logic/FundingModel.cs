@@ -36,10 +36,10 @@ public class FundingModel
     /// <param name="p">The policy to implement</param>
     public void ImplementPolicy(PolicyProposal p){
         Budget += p.budgetDifference;
-        if (p.increasePolicy != 0)
+        if (p.type != PolicyType.NOINCREASE)
             funding [p.increasePolicy] = Math.Min(funding [p.increasePolicy] + 1, MAXFUNDING);
-        if (p.decreasePolicy != 0)
-            funding [p.decreasePolicy] = Math.Min(funding [p.decreasePolicy] - 1, 0);
+        if (p.type != PolicyType.NODECREASE)
+            funding [p.decreasePolicy] = Math.Max(funding [p.decreasePolicy] - 1, 0);
     }
 
     /// <summary>

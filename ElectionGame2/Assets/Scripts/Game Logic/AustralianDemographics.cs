@@ -39,6 +39,8 @@ public class AustralianDemographics
             int newval = random.Next(cmin, cmax);
             remaining -= newval;
             demos[(VotingArea)policies.GetValue(i)] = newval;
+
+            Debug.Log(policies.GetValue(i).ToString() + ": " + newval);
         }
     }
 
