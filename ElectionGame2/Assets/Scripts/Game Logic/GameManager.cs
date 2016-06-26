@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
     public GameObject VotingScreen;
     public GameObject ResultsScreen;
 
+    public TimerDisplay mainTimer;
+
     public GameObject PlayerGrid;
     public GameObject PlayerTextPrefab;
     public GameObject RoomCodeText;
@@ -86,27 +88,60 @@ public class GameManager : MonoBehaviour
 
         DeinitSetup();
 
+        FundingModel fm = new FundingModel();
+        AustralianDemographics ad = new AustralianDemographics();
+        NewsMessages nm = new NewsMessages(ad);
+
         while(GameRound < MaxGameRounds)
         {
             RoundNumber.gameObject.SetActive(true);
             GameRound++;
-
             RoundNumber.text = "ROUND " + GameRound;
 
-            InitQuestion(GameRound);
+            PolicyProposal p1 = new PolicyProposal();
+            PolicyProposal p2 = new PolicyProposal();
 
+
+            InitQuestion(GameRound);
+            StartCoroutine(ChangeTimer(questionTime));
             yield return new WaitForSeconds(questionTime);
 
             InitVoting(GameRound);
-
+            StartCoroutine(ChangeTimer(votingTime));
             yield return new WaitForSeconds(votingTime);
 
-            InitResults(GameRound);
+            fm.ImplementPolicy(p);
 
+            InitResults(GameRound);
+            StartCoroutine(ChangeTimer(resultsTime));
             yield return new WaitForSeconds(resultsTime);
         }
 
         yield break;
+    }
+
+    IEnumerator ChangeTimer(float time)
+    {
+        float t = 0;
+
+        while(t<time)
+        {
+            t+=Time.deltaTime;
+
+            mainTimer.SetPercentage(1-(t/time), (time-t));
+
+            yield return 0;
+        }
+    }
+
+
+    public void NewDataRegistered(string playerName, string newData)
+    {
+        if(CurrentStage == VotingStage.Voting)
+        {
+            // New vote
+            NotificationManager.notMan.NewNotification(playerName + " voted " + newData);
+        }    
     }
 
     public void DeinitQuestion()
@@ -161,17 +196,12 @@ public class GameManager : MonoBehaviour
             new Vector2(Random.Range(-Screen.width*0.2f, Screen.width*0.2f), Random.Range(-Screen.height*0.2f,Screen.height*0.2f));
         newPlayerName.GetComponentInChildren<Text>().text = playerName;
     }
-
-    public void NewDataRegistered(string playerName, string newData)
-    {
-        NotificationManager.notMan.NewNotification(playerName + " did a " + newData + " x" + Players[playerName].Input.Count);
-    }
-	
+        
     public void HandleGameData(string gameData)
     {
         Debug.Log("Game data: " + gameData);
 
-        string GameID = gameData.Substring(0,6);
+    //    string GameID = gameData.Substring(0,6);
         string playerData = gameData.Substring(6);
         SeperatePlayerData(playerData);
     }
