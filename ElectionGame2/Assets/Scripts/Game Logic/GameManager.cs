@@ -29,6 +29,9 @@ public class GameManager : MonoBehaviour
         gameMan = this;
 
         FundingModel fm = new FundingModel();
+        AustralianDemographics ad = new AustralianDemographics();
+        Debug.Log(ad.ToString());
+        NewsMessages nm = new NewsMessages(ad);
         Debug.Log(fm.ToString());
         for (int i = 0; i < 8; i++)
         {
@@ -36,8 +39,10 @@ public class GameManager : MonoBehaviour
             Debug.Log(p.policyString);
             fm.ImplementPolicy(p);
             Debug.Log(fm.ToString());
+            Debug.Log(nm.GetRandomMessage());
         }
-        Debug.Log("GameOver");
+        long votes = ad.TallyVotes(fm);
+        Debug.Log("Final score: " + ad.GetVotePercentage(votes));
 
         //GameRoomID = GenerateGameRoomName();
         GameRoomName = "BUTT";

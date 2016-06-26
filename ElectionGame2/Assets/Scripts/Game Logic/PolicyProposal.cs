@@ -77,7 +77,6 @@ public class PolicyProposal
         int proposalType = random.Next(0, 9);
         if (proposalType < 2)
         {
-            Debug.Log("NO BUDGET PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             increasePolicy = (PolicyArea)areas.GetValue(index);
             int index2 = random.Next(areas.Length);
@@ -90,15 +89,13 @@ public class PolicyProposal
         } 
         else if (proposalType < 8)
         {
-            Debug.Log("NO DECREASE PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             increasePolicy = (PolicyArea)areas.GetValue(index);
-            budgetDifference = random.Next(2800, 5200);
+            budgetDifference = -random.Next(2800, 5200);
             type = PolicyType.NODECREASE;
         } 
         else
         {
-            Debug.Log("NO INCREASE PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             decreasePolicy = (PolicyArea)areas.GetValue(index);
             budgetDifference = random.Next(1400, 2600);
