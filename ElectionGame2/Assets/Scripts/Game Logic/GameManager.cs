@@ -28,7 +28,16 @@ public class GameManager : MonoBehaviour
     {
         gameMan = this;
 
-
+        FundingModel fm = new FundingModel();
+        Debug.Log(fm.ToString());
+        for (int i = 0; i < 8; i++)
+        {
+            PolicyProposal p = new PolicyProposal();
+            Debug.Log(p.policyString);
+            fm.ImplementPolicy(p);
+            Debug.Log(fm.ToString());
+        }
+        Debug.Log("GameOver");
 
         //GameRoomID = GenerateGameRoomName();
         GameRoomName = "BUTT";

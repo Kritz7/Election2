@@ -15,6 +15,8 @@ public class PolicyProposal
     public PolicyArea decreasePolicy;
     //How much this policy will cost or save
     public int budgetDifference;
+    //What kind of policy this one is
+    public PolicyType type;
 
     //How the policy will be presented. Use this when displaying the policy.
     public string policyString = "";
@@ -22,15 +24,15 @@ public class PolicyProposal
 
     string[] p1starts =
     {
-        "We must prioritize ", "It's time to focus on ", "We should favour ", "We must shift focus to ", "Our future lies with "
+        "We must prioritize ", "It's time to focus on ", "We should favour ", "We must shift focus to ", "Our future lies with ", "Australia demands prioritizing "
     };
     string[] p2starts =
     {
-        "We should invest more in ", "We should increase spending in ", "The government must spend more on ", "It's obvious we need more money in "
+        "We should invest more in ", "We should increase spending in ", "The government must spend more on ", "It's obvious we need more money in ", "Australia demands more "
     };
     string[] p3starts =
         {
-        "We could save money by cutting on ", "We should cut back on ", "We don't need as much funding in ", "Lets reduce funding in "
+        "We could save money by cutting on ", "We should cut back on ", "We don't need as much funding in ", "Lets reduce funding in ", "Australia expects less "
     };
 
     string[] diffStrings = { " over ", " rather than ", " instead of " };
@@ -73,8 +75,9 @@ public class PolicyProposal
     {
         Array areas = Enum.GetValues(typeof(PolicyArea));
         int proposalType = random.Next(0, 9);
-        if (proposalType < 4)
+        if (proposalType < 2)
         {
+            Debug.Log("NO BUDGET PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             increasePolicy = (PolicyArea)areas.GetValue(index);
             int index2 = random.Next(areas.Length);
@@ -82,35 +85,38 @@ public class PolicyProposal
                 index2 = random.Next(areas.Length);
             decreasePolicy = (PolicyArea)areas.GetValue(index2);
             budgetDifference = 0;
+            type = PolicyType.NOBUDGET;
 
         } 
         else if (proposalType < 8)
         {
+            Debug.Log("NO DECREASE PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             increasePolicy = (PolicyArea)areas.GetValue(index);
             budgetDifference = random.Next(2800, 5200);
+            type = PolicyType.NODECREASE;
         } 
         else
         {
+            Debug.Log("NO INCREASE PROPOSAL (" + proposalType + ")");
             int index = random.Next(areas.Length);
             decreasePolicy = (PolicyArea)areas.GetValue(index);
             budgetDifference = random.Next(1400, 2600);
+            type = PolicyType.NOINCREASE;
         }
 
         GeneratePolicyTopic();
     }
 
     public void GeneratePolicyTopic() {
-        if (increasePolicy == 0)
+        if (type == PolicyType.NOINCREASE)
             policyString = p3starts [random.Next(0, p3starts.Length)];
-        else if (decreasePolicy == 0)
+        else if (type == PolicyType.NODECREASE)
             policyString = p2starts [random.Next(0, p2starts.Length)];
         else
             policyString = p1starts [random.Next(0, p1starts.Length)];
             
-        PolicyArea area = increasePolicy;
-        if (increasePolicy == 0)
-            area = decreasePolicy;
+        PolicyArea area = (type ==  PolicyType.NOINCREASE ? decreasePolicy : increasePolicy);
         
         switch (area)
         {
@@ -128,13 +134,12 @@ public class PolicyProposal
                 break;
         }
 
-        if (budgetDifference == 0)
+        if (type == PolicyType.NOBUDGET)
         {
             policyString += diffStrings [random.Next(0, diffStrings.Length)];
             string pstring = decreasePolicy.ToString();
             policyString += pstring.Substring(0, 1) + pstring.Substring(1).ToLower();
             policyString += " spending.";
         }
-        Debug.Log(policyString);
     }
 }
