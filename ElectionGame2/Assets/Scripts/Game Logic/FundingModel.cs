@@ -50,4 +50,18 @@ public class FundingModel
     public int GetFundingAmount(PolicyArea p){
         return funding [p];
     }
+
+    /// <summary>
+    /// String it!
+    /// </summary>
+    /// <returns>A <see cref="System.String"/> that represents the current <see cref="FundingModel"/>.</returns>
+    public override string ToString(){
+        string s = "";
+
+        foreach (PolicyArea p in Enum.GetValues(typeof(PolicyArea))) {
+            s += p.ToString() + " " + funding[p] + "\n";
+        }
+        s += "BUDGET " + BUDGET;
+        return s;
+    }
 }

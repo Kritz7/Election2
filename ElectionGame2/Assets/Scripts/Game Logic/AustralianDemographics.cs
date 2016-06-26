@@ -3,11 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//Same as PolicyArea but includes Economy, for consequences if you screw the shit out of your budget
-enum VotingArea {
-    DEFENSE, INDUSTRY, PUBLIC, ENVIRONMENT, ECONOMY
-}
-
 /// <summary>
 /// Construct this class precisely once. This contains a collection of distributions (out of 100) of what each
 /// voter is concerned about.
@@ -60,7 +55,7 @@ public class AustralianDemographics
     /// </summary>
     /// <returns>The rough voter percentage.</returns>
     /// <param name="p">The area of policy you're interseted in</param>
-    private int GetRoughVotePercentage(VotingArea p){
+    public int GetRoughVotePercentage(VotingArea p){
         int value = demos [p];
         if ((float)value % 5.0 < 2.5)
             return value + 5 - (value % 5);
