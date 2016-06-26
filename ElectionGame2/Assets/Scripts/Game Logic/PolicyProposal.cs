@@ -139,4 +139,19 @@ public class PolicyProposal
             policyString += " spending.";
         }
     }
+
+    public override string ToString()
+    {
+        switch(type)
+        {
+            case PolicyType.NOBUDGET:
+                return "Policy +"+increasePolicy.ToString() + " -" + decreasePolicy.ToString();
+            case PolicyType.NODECREASE:
+                return "Policy +"+increasePolicy.ToString();
+            case PolicyType.NOINCREASE:
+                return "Policy -" + decreasePolicy.ToString();
+        }
+
+        return "Policy error?";
+    }
 }

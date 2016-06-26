@@ -8,6 +8,11 @@ public class TimerDisplay : MonoBehaviour
     public RectTransform myRect;
     public Text myText;
 
+    public void SetPercentage(float percentage)
+    {
+        BarImage.rectTransform.sizeDelta = new Vector2(myRect.rect.width * percentage, BarImage.rectTransform.sizeDelta.y);
+    }
+
     public void SetPercentage(float percentage, float timeleft)
     {
         BarImage.rectTransform.sizeDelta = new Vector2(myRect.rect.width * percentage, BarImage.rectTransform.sizeDelta.y);

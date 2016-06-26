@@ -11,6 +11,8 @@ public class PolicyVote {
     public PolicyVote(PolicyProposal p1, PolicyProposal p2){
         Policy_One = p1;
         Policy_Two = p2;
+
+        votes = new Dictionary<string, int>();
     }
 
     /// <summary>
@@ -35,6 +37,7 @@ public class PolicyVote {
         int[] tally = new int[2];
         tally [0] = 0;
         tally [1] = 0;
+
         foreach (KeyValuePair<string, int> entry in votes)
         {
             tally [entry.Value - 1]++;
