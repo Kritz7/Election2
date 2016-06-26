@@ -16,12 +16,12 @@ public class CustomNetworkManager : MonoBehaviour
     void Update () {
         if(Input.GetKeyDown(KeyCode.W))
         {
-            Post(new string[] {"unity-gamestate", "unity-gameroom"}, new string[] {"voting-all-"+GameManager.gameMan.GenID(), GameManager.gameMan.name});
+            Post(new string[] {"unity-gamestate", "unity-gameroom"}, new string[] {"voting-all-"+GameManager.gameMan.GenID(), GameManager.gameMan.GameRoomName});
         }
 
         if(Input.GetKeyDown(KeyCode.A))
         {
-       //     PostStuff("unitycommands", "startvote");
+            Post(new string[] {"unity-gamestate", "unity-gameroom"}, new string[] {"endvote-all-"+GameManager.gameMan.GenID(), GameManager.gameMan.GameRoomName});
         }
     }
 
@@ -47,7 +47,7 @@ public class CustomNetworkManager : MonoBehaviour
             Debug.Log(www.error);
         }
         else {
-            Debug.Log("Post complete!");
+            Debug.Log("Post complete! " + www.downloadHandler.text);
         }
     }
 
