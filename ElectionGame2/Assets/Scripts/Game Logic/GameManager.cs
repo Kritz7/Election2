@@ -103,9 +103,9 @@ public class GameManager : MonoBehaviour
 
     IEnumerator GameRoundLogic()
     {
-        float questionTime = 10f;
-        float votingTime = 20f;
-        float resultsTime = 10f;
+        float questionTime = 5f;
+        float votingTime = 25f;
+        float resultsTime = 15f;
 
         DeinitSetup();
 
@@ -302,45 +302,6 @@ public class GameManager : MonoBehaviour
             NotificationManager.notMan.NewNotification(playerName + " voted " + newData);
         }    
     }
-	
-	/*
-	  ArrayList lowest = new ArrayList(), highest = new ArrayList();
-        int lowesti = 8, highesti = -1;
-        foreach (PolicyArea p in Enum.GetValues(typeof(PolicyArea)))
-        {
-            int funding = fm.GetFundingAmount(p);
-            if (funding < lowesti)
-            {
-                lowest.Clear();
-                lowest.Add(p);
-                lowesti = funding;
-            } else if (funding == lowesti)
-            {
-                lowest.Add(p);
-            }
-
-            if (funding > highesti)
-            {
-                highest.Clear();
-                highest.Add(p);
-                highesti = funding;
-            } else if (funding == highesti)
-            {
-                highest.Add(p);
-            }
-        } 
-
-string hstring = "Our HIGHEST priorities are: ";
-        foreach (PolicyArea p in highest)
-        {
-            hstring += p.ToString() + " ";
-        }
-        string lstring = "Our LOWEST priorities are: ";
-        foreach (PolicyArea p in highest)
-        {
-            lstring += p.ToString() + " ";
-        } 
-*/
 
     public float GetVotePercentage(int index)
     {
@@ -419,7 +380,6 @@ string hstring = "Our HIGHEST priorities are: ";
     {
         Debug.Log("Game data: " + gameData);
 
-    //    string GameID = gameData.Substring(0,6);
         string playerData = gameData.Substring(6);
         SeperatePlayerData(playerData);
     }
